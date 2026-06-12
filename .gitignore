@@ -1,0 +1,42 @@
+# Build directories
+build/
+bin/
+lib/
+
+# CMake artifacts
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CPackConfig.cmake
+CPackSourceConfig.cmake
+_deps/
+
+# IDEs and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Visual Studio specific
+*.user
+*.sln
+*.vcxproj
+*.filters
+*.tlog
+*.obj
+*.exe
+*.pdb
+*.ilk
+*.lib
+x64/
+Release/
+Debug/
+
+# Project specific
+GEMINI.md.tmp
