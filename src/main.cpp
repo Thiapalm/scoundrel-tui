@@ -17,11 +17,19 @@ int main(int argc, char** argv)
     std::string theme_path = "";
     
     auto& lm = LocalizationManager::instance();
-    if (!lm.load_locale("en", "locales")) {
-        if (!lm.load_locale("en", "../locales")) {
-            if (!lm.load_locale("en", "scoundrel-core/assets/locales")) {
-                lm.load_locale("en", "../scoundrel-core/assets/locales");
-            }
+    std::vector<std::string> locale_paths = {
+        "locales",
+        "../locales",
+        "../../locales",
+        "../../../locales",
+        "scoundrel-core/assets/locales",
+        "../scoundrel-core/assets/locales",
+        "../../scoundrel-core/assets/locales",
+        "../../../scoundrel-core/assets/locales"
+    };
+    for (const auto& path : locale_paths) {
+        if (lm.load_locale("en", path)) {
+            break;
         }
     }
     lm.set_locale("en");

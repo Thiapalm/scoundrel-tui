@@ -53,10 +53,11 @@ std::optional<int> CLIUserInterface::select_player_class()
     std::cout << "(1) Peasant\n";
     std::cout << "(2) Healer\n";
     std::cout << "(3) Warrior\n";
+    std::cout << "(4) Wizard\n";
     auto value = read_input("Choose: ");
     if (!value)
         return std::nullopt;
-    if (*value < 1 || *value > 3)
+    if (*value < 1 || *value > 4)
         return std::nullopt;
     return *value - 1;
 }
