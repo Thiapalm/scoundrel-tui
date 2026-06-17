@@ -225,14 +225,15 @@ std::optional<int> TUIUserInterface::select_player_class()
 {
     auto screen = ScreenInteractive::Fullscreen();
     int selected = 0;
-    std::vector<std::string> options = {"Peasant", "Healer", "Warrior", "QUIT"};
+    std::vector<std::string> options = {"Peasant", "Healer", "Warrior", "Wizard", "QUIT"};
 
     auto &lm = LocalizationManager::instance();
     std::map<int, std::vector<std::string>> class_perks = {
         {0, {lm.get_string("ui.class.peasant_perk")}},
         {1, {lm.get_string("ui.class.healer_perk2"), lm.get_string("ui.class.healer_perk1")}},
         {2, {lm.get_string("ui.class.warrior_perk1"), lm.get_string("ui.class.warrior_perk2")}},
-        {3, {lm.get_string("ui.mode.quit")}}};
+        {3, {lm.get_string("ui.class.wizard_perk1"), lm.get_string("ui.class.wizard_perk2"), lm.get_string("ui.class.wizard_perk3")}},
+        {4, {lm.get_string("ui.mode.quit")}}};
 
     auto menu = Menu(&options, &selected);
     bool confirmed = false;
@@ -247,7 +248,7 @@ std::optional<int> TUIUserInterface::select_player_class()
 
         return vbox({
             text(" CHOOSE YOUR CLASS ") | bold | center | border | color(current_theme.action_label) | size(WIDTH, EQUAL, 60),
-            menu->Render() | border | hcenter | color(current_theme.health_high) | size(HEIGHT, EQUAL, 6) | size(WIDTH, EQUAL, 60),
+            menu->Render() | border | hcenter | color(current_theme.health_high) | size(HEIGHT, EQUAL, 7) | size(WIDTH, EQUAL, 60),
             separator() | size(WIDTH, EQUAL, 60),
             vbox({
                 text(" Selected Class Perks: ") | bold | color(current_theme.action_label),
@@ -272,7 +273,7 @@ std::optional<int> TUIUserInterface::select_player_class()
         return false; });
 
     screen.Loop(event_handler);
-    if (quit || (confirmed && selected == 3))
+    if (quit || (confirmed && selected == 4))
         return std::nullopt;
     return selected;
 }
