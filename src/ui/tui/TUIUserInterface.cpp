@@ -35,6 +35,32 @@ namespace
     {
         return type == GameType::DEFAULT ? damage_to_face_string(damage) : std::to_string(damage);
     }
+
+    std::optional<std::string> warlord_passive_text(const Card *card)
+    {
+        if (!card || card->getType() != CardType::Monster || card->get_face() != face::_JK)
+            return std::nullopt;
+
+        if (card->get_suit() == suit::Spades)
+            return std::string("Passive: Joker of Spades adds +2 to monster value");
+
+        if (card->get_suit() == suit::Clubs)
+            return std::string("Passive: Joker of Clubs halves healing effects (rounded down)");
+
+        return std::nullopt;
+    }
+
+    std::optional<std::string> warlord_passive_text(const GameContext &ctx)
+    {
+        auto room = ctx.get_room();
+        for (int i = 0; i < room->cards_in_room(); ++i)
+        {
+            if (auto passive = warlord_passive_text(&room->look_card(i)))
+                return passive;
+        }
+
+        return std::nullopt;
+    }
 }
 
 void TUIUserInterface::add_log(const std::string &msg)
@@ -53,6 +79,7 @@ Element TUIUserInterface::RenderCard(const Card *card, bool selected)
 
     std::string name = transform_face(card->get_face());
     std::string suit_symbol = transform_suit(card->get_suit());
+    auto passive_text = warlord_passive_text(card);
 
     Color c = current_theme.text;
     std::string type_label = "CARD";
@@ -60,8 +87,21 @@ Element TUIUserInterface::RenderCard(const Card *card, bool selected)
     switch (card->getType())
     {
     case CardType::Monster:
-        c = current_theme.monster;
-        type_label = "MONST";
+        if (card->get_face() == face::_JK && card->get_suit() == suit::Spades)
+        {
+            c = current_theme.warlord;
+            type_label = "WARLORD";
+        }
+        else if (card->get_face() == face::_JK && card->get_suit() == suit::Clubs)
+        {
+            c = current_theme.plague_doctor;
+            type_label = "PLAGUEDOC";
+        }
+        else
+        {
+            c = current_theme.monster;
+            type_label = "MONST";
+        }
         break;
     case CardType::Weapon:
         c = current_theme.weapon;
@@ -73,9 +113,16 @@ Element TUIUserInterface::RenderCard(const Card *card, bool selected)
         break;
     }
 
+    Element type_info = text(type_label) | hcenter | dim;
+    if (passive_text)
+    {
+        type_info = vbox({text(type_label) | hcenter | dim,
+                          text(*passive_text) | hcenter | dim});
+    }
+
     auto content = vbox({hbox({text(name + suit_symbol) | bold, filler()}),
                          filler(),
-                         text(type_label) | hcenter | dim,
+                         type_info,
                          filler(),
                          hbox({filler(), text(name + suit_symbol) | bold})}) |
                    size(WIDTH, EQUAL, 11) | size(HEIGHT, EQUAL, 8);
@@ -159,14 +206,28 @@ Element TUIUserInterface::RenderPlayerStats(const GameContext &ctx)
 
 Element TUIUserInterface::RenderDungeonStats(const GameContext &ctx)
 {
-    return vbox({text(" DUNGEON ") | bold | hcenter | color(current_theme.action_label),
-                 separator() | color(current_theme.border),
-                 text("Rooms left: " + std::to_string(ctx.get_dungeon()->dungeon_size() / 4)) | hcenter | color(current_theme.text),
-                 text("Cards left: " + std::to_string(ctx.get_dungeon()->dungeon_size())) | hcenter | color(current_theme.text),
-                 text("Cemetery: " + std::to_string(ctx.get_graveyard()->graveyard_size())) | color(current_theme.text) | hcenter | dim,
-                 separator() | color(current_theme.border),
-                 text(ctx.is_room_skipped() ? "ROOM SKIPPED" : "NEW ROOM") | color(ctx.is_room_skipped() ? current_theme.health_mid : current_theme.health_high) | hcenter}) |
-           border | color(current_theme.border) | size(WIDTH, EQUAL, 20);
+    Elements elements;
+    elements.push_back(text(" DUNGEON ") | bold | hcenter | color(current_theme.action_label));
+    elements.push_back(separator() | color(current_theme.border));
+    elements.push_back(text("Rooms left: " + std::to_string(ctx.get_dungeon()->dungeon_size() / 4)) | hcenter | color(current_theme.text));
+    elements.push_back(text("Cards left: " + std::to_string(ctx.get_dungeon()->dungeon_size())) | hcenter | color(current_theme.text));
+    elements.push_back(text("Cemetery: " + std::to_string(ctx.get_graveyard()->graveyard_size())) | color(current_theme.text) | hcenter | dim);
+    elements.push_back(separator() | color(current_theme.border));
+    if (ctx.get_type() == GameType::EXTENDED)
+    {
+        if (ctx.is_warlord_active())
+            elements.push_back(text("\u2605 WARLORD ACTIVE") | bold | color(current_theme.warlord) | hcenter);
+        else
+            elements.push_back(text("\u2605 Warlord Cleared") | dim | color(current_theme.text) | hcenter);
+
+        if (ctx.is_plague_doctor_active())
+            elements.push_back(text("\u2665 PLAGUE DOC ACTIVE") | bold | color(current_theme.plague_doctor) | hcenter);
+        else
+            elements.push_back(text("\u2665 PlagueDoc Cleared") | dim | color(current_theme.text) | hcenter);
+    }
+    elements.push_back(text(ctx.is_room_skipped() ? "ROOM SKIPPED" : "NEW ROOM") | color(ctx.is_room_skipped() ? current_theme.health_mid : current_theme.health_high) | hcenter);
+
+    return vbox(std::move(elements)) | border | color(current_theme.border) | size(WIDTH, EQUAL, 20);
 }
 
 Element TUIUserInterface::RenderLogs()

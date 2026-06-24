@@ -8,6 +8,8 @@ struct Theme {
     ftxui::Color monster = ftxui::Color::RGB(243, 139, 168); // #f38ba8
     ftxui::Color weapon = ftxui::Color::RGB(137, 220, 235);  // #89dceb
     ftxui::Color potion = ftxui::Color::RGB(245, 194, 231);  // #f5c2e7
+    ftxui::Color warlord = ftxui::Color::RGB(203, 166, 247);      // #cba6f7 (Mauve)
+    ftxui::Color plague_doctor = ftxui::Color::RGB(148, 226, 213); // #94e2d5 (Teal)
     
     // UI Elements
     ftxui::Color health_high = ftxui::Color::RGB(166, 227, 161); // #a6e3a1

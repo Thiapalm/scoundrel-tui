@@ -49,6 +49,8 @@ Theme Theme::LoadFromFile(const std::string& path) {
         if (key == "COLOR_MONSTER") theme.monster = HexToColor(val);
         else if (key == "COLOR_WEAPON") theme.weapon = HexToColor(val);
         else if (key == "COLOR_POTION") theme.potion = HexToColor(val);
+        else if (key == "COLOR_WARLORD") theme.warlord = HexToColor(val);
+        else if (key == "COLOR_PLAGUE_DOCTOR") theme.plague_doctor = HexToColor(val);
         else if (key == "COLOR_HEALTH_HIGH") theme.health_high = HexToColor(val);
         else if (key == "COLOR_HEALTH_MID") theme.health_mid = HexToColor(val);
         else if (key == "COLOR_HEALTH_LOW") theme.health_low = HexToColor(val);
